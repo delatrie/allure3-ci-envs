@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Allure.Examples.CiEnvs.Allure3.Tests;
 
-class UnitTests
+class UnitTests : BaseTestClass
 {
     private Random rnd;
 

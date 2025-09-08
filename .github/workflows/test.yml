@@ -52,3 +52,46 @@ jobs:
         with:
           path: "./test/Allure.Examples.CiEnvs.Allure3.Tests/bin/${{ matrix.configuration }}/${{ matrix.framework }}/allure-results"
           name: "TestResults-${{ matrix.os }}-${{ matrix.framework }}-${{ matrix.configuration }}"
+
+  publish-report:
+    needs: build-test
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Check out Allure config
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            allurerc.mjs
+
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          path: allure-results
+          pattern: TestResults-*
+          merge-multiple: true
+
+      - name: Generate Allure 3 report
+        run: npx allure generate ./allure-results
+
+      - name: Upload the report as a pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: './allure-report'
+
+      - name: Deploy GitHub pages from the pages artifact
+        id: deployment
+        uses: actions/deploy-pages@v4

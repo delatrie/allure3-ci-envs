@@ -62,6 +62,7 @@ jobs:
     permissions:
       pages: write
       id-token: write
+      contents: write
 
     environment:
       name: github-pages
@@ -77,6 +78,16 @@ jobs:
           sparse-checkout: |
             allurerc.mjs
 
+      - name: Check out Allure history
+        uses: actions/checkout@v5
+        with:
+          ref: allure-history
+          path: .allure
+          sparse-checkout: |
+            history.jsonl
+            .gitattributes
+          lfs: true
+
       - name: Download test results
         uses: actions/download-artifact@v4
         with:
@@ -91,6 +102,16 @@ jobs:
         uses: actions/upload-pages-artifact@v4
         with:
           path: './allure-report'
+
+      - name: Upload the updated history back
+        working-directory: .allure
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          ls .
+          git add history.jsonl
+          git commit -m "Update Allure 3 history"
+          git push origin allure-history
 
       - name: Deploy GitHub pages from the pages artifact
         id: deployment

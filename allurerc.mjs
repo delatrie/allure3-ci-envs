@@ -47,4 +47,5 @@ export default {
       matcher: ({ labels }) => hasEnv(labels, "Windows, net9.0, Release"),
     },
   },
+  historyPath: "./.allure/history.jsonl",
 };
